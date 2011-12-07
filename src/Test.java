@@ -1,4 +1,3 @@
-import org.json.JSONObject;
 import org.vatvit.irccloud.Channel;
 import org.vatvit.irccloud.Client;
 import org.vatvit.irccloud.Connection;

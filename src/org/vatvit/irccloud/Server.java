@@ -2,8 +2,7 @@ package org.vatvit.irccloud;
 
 import java.util.ArrayList;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.json.simple.JSONObject;
 import org.vatvit.irccloud.events.EventListener;
 import org.vatvit.irccloud.events.ServerListener;
 import org.vatvit.irccloud.events.ServersListener;
@@ -16,12 +15,12 @@ public class Server {
 	private String nickservPass;
 	private String realname;
 	private String hostname;
-	private int port;
+	private long port;
 	private String away;
 	private boolean disconnected;
 	private boolean ssl;
 	private String serverPass;
-	private int cid;
+	private long cid;
 	
 	private ArrayList<ServerListener> listeners = new ArrayList<ServerListener>();
 	private ArrayList<Channel> channels = new ArrayList<Channel>();
@@ -30,22 +29,17 @@ public class Server {
 
 	public Server(Connection conn, JSONObject object) {
 		this.connection = conn;
-		try {
-			this.cid = object.getInt("cid");
-			this.name = object.getString("name");
-			this.nick = object.getString("nick");
-			this.nickservNick = object.getString("nickserv_nick");
-			this.realname = object.getString("realname");
-			this.hostname = object.getString("hostname");
-			this.port = object.getInt("port");
-			this.away = object.getString("away");
-			this.disconnected = object.getBoolean("disconnected");
-			this.ssl = object.getBoolean("ssl");
-			this.serverPass = object.getString("server_pass");
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		this.cid = (Long)object.get("cid");
+		this.name = (String)object.get("name");
+		this.nick = (String)object.get("nick");
+		this.nickservNick = (String)object.get("nickserv_nick");
+		this.realname = (String)object.get("realname");
+		this.hostname = (String)object.get("hostname");
+		this.port = (Long)object.get("port");
+		this.away = (String)object.get("away");
+		this.disconnected = (Boolean)object.get("disconnected");
+		this.ssl = (Boolean)object.get("ssl");
+		this.serverPass = (String)object.get("server_pass");
 		initListeners();
 	}
 	
@@ -53,14 +47,10 @@ public class Server {
 		final Server self = this;
 		this.connection.addEventListener("channel_init", new EventListener(){
 			public void onEvent(JSONObject event) {
-				try {
-					if(event.getInt("cid") == cid) {
-						Channel channel = new Channel(connection, event);
-						channels.add(channel);
-						newChannel(channel);
-					}
-				} catch (JSONException e) {
-					e.printStackTrace();
+				if((Long)event.get("cid") == cid) {
+					Channel channel = new Channel(connection, event);
+					channels.add(channel);
+					newChannel(channel);
 				}
 			}
 		});
@@ -68,23 +58,13 @@ public class Server {
 		//you_parted_channel
 		this.connection.addEventListener("you_parted_channel", new EventListener(){
 			public void onEvent(JSONObject event) {
-				int ecid = 0;
-				try {
-					ecid = event.getInt("cid");
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				long ecid = 0;
+				ecid = (Long)event.get("cid");
 				if(ecid != self.cid) {
 					return;
 				}
 				String chan;
-				try {
-					chan = event.getString("chan");
-				} catch (JSONException e) {
-					e.printStackTrace();
-					return;
-				}
+				chan = (String)event.get("chan");
 				for(Channel channel : channels) {
 					if(channel.getName().equalsIgnoreCase(chan)) {
 						channels.remove(channel);
@@ -158,11 +138,11 @@ public class Server {
 		this.hostname = hostname;
 	}
 
-	public int getPort() {
+	public long getPort() {
 		return port;
 	}
 
-	public void setPort(int port) {
+	public void setPort(long port) {
 		this.port = port;
 	}
 
@@ -198,11 +178,11 @@ public class Server {
 		this.serverPass = serverPass;
 	}
 
-	public int getCid() {
+	public long getCid() {
 		return cid;
 	}
 
-	public void setCid(int cid) {
+	public void setCid(long cid) {
 		this.cid = cid;
 	}
 

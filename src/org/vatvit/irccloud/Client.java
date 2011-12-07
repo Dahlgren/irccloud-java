@@ -2,8 +2,7 @@ package org.vatvit.irccloud;
 
 import java.util.ArrayList;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.json.simple.JSONObject;
 import org.vatvit.irccloud.events.EventListener;
 import org.vatvit.irccloud.events.ServerListener;
 import org.vatvit.irccloud.events.ServersListener;
@@ -25,14 +24,8 @@ public class Client {
 		final Client self = this;
 		this.connection.addEventListener("stat_user", new EventListener(){
 			public void onEvent(JSONObject event) {
-				//{"bid":-1,"eid":-1,"type":"stat_user","time":1309291645,"highlight":false,"id":2348,"name":"Jaakko Lukkari","email":"jaakko.lukkari@gmail.com","verified":true,"last_selected_bid":57154,"limits_name":"free","limits":{"networks":0,"passworded_servers":false,"zombiehours":48,"download_logs":false,"maxhistorydays":7},"num_connections":2,"num_active_connections":1,"highlights":[],"prefs":"{\"time-24hr\":true,\"time-seconds\":true}","join_date":1308811174,"autoaway":true}
-				try {
-					self.name = event.getString("name");
-					self.email = event.getString("email");
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				self.name = (String)event.get("name");
+				self.email = (String)event.get("email");
 			}
 		});
 		
@@ -66,12 +59,7 @@ public class Client {
 		this.connection.addEventListener("connection_deleted", new EventListener(){
 			public void onEvent(JSONObject event) {
 				int cid = 0;
-				try {
-					cid = event.getInt("cid");
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				cid = (Integer)event.get("cid");
 				Server server = null;
 				for(Server serv : servers) {
 					if(serv.getCid() == cid) {

@@ -3,8 +3,7 @@ package org.vatvit.irccloud;
 import java.util.ArrayList;
 import java.util.Date;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.json.simple.JSONObject;
 import org.vatvit.irccloud.events.EventListener;
 import org.vatvit.irccloud.events.ChannelListener;
 
@@ -16,30 +15,20 @@ public class Channel {
 	private String name;
 	private String topic;
 	private String topicAuthor;
-	private int topicTime;
-	private int cid;
+	private long topicTime;
+	private long cid;
 	private ArrayList<Message> messages = new ArrayList<Message>();
 	
 	public Channel(Connection conn, JSONObject object) {
 		this.connection = conn;
 		
-		//{"bid":58363,"eid":-1,"type":"channel_init","time":
-		//1309465365,"highlight":false,"cid":7464,"chan":"#test",
-		//"members":[{"nick":"orktes_","mode":"o","realname":"","away":false,"ircserver":"","user":"","usermask":""}],
-		//"topic":{"topic_text":null,"topic_time":-1,"topic_author":null},"mode":"n",
-		//"ops":{"add":[{"mode":"n","param":""}],"remove":[]}}
-		try {
-			this.cid = object.getInt("cid");
-			this.name = object.getString("chan");
-			JSONObject topicObj = object.getJSONObject("topic");
-			if(!topicObj.isNull("topic_text")) {
-				this.topic = topicObj.getString("topic_text");
-				this.topicAuthor = topicObj.getString("topic_author");
-				this.topicTime = topicObj.getInt("topic_time");
-			}
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		this.cid = (Long)object.get("cid");
+		this.name = (String)object.get("chan");
+		JSONObject topicObj = (JSONObject)object.get("topic");
+		if(topicObj.get("topic_text") != null) {
+			this.topic = (String)topicObj.get("topic_text");
+			this.topicAuthor = (String)topicObj.get("topic_author");
+			this.topicTime = (Long)topicObj.get("topic_time");
 		}
 		
 		initListeners();
@@ -48,20 +37,10 @@ public class Channel {
 		this.connection.addEventListener("buffer_msg", new EventListener(){
 			@Override
 			public void onEvent(JSONObject event) {
-				int ecid = 0;
-				try {
-					ecid = event.getInt("cid");
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				long ecid = 0;
+				ecid = (Long)event.get("cid");
 				String chan = null;
-				try {
-					chan = event.getString("chan");
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				chan = (String)event.get("chan");
 				if(ecid != cid || !name.equalsIgnoreCase(chan)) {
 					return;
 				}
@@ -99,20 +78,20 @@ public class Channel {
 		this.topicAuthor = topicAuthor;
 	}
 
-	public int getTopicTime() {
+	public long getTopicTime() {
 		return topicTime;
 	}
 
-	public void setTopicTime(int topicTime) {
+	public void setTopicTime(long topicTime) {
 		this.topicTime = topicTime;
 	}
 
 	
-	public int getCid() {
+	public long getCid() {
 		return cid;
 	}
 
-	public void setCid(int cid) {
+	public void setCid(long cid) {
 		this.cid = cid;
 	}
 
