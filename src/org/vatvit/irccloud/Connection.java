@@ -12,7 +12,9 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.vatvit.irccloud.events.EventListener;
@@ -26,6 +28,7 @@ public class Connection {
 	private HashMap<String, ArrayList<EventListener>> eventListeners = new HashMap<String, ArrayList<EventListener>>();
 
 
+	private String hostUrl = "https://irccloud.com";
 	private String streamUrl = "https://irccloud.com/chat/stream";
 	private String actionUrl = "https://irccloud.com/chat/";
 
@@ -125,6 +128,10 @@ public class Connection {
 								streamConn.getInputStream()));
 						String line;
 						while ((line = rd.readLine()) != null) {
+							line = line.trim();
+							if (line.length() <= 0) {
+								continue;
+							}
 							try {
 								JSONObject response = new JSONObject(line);
 								self.onEvent(response);
@@ -141,9 +148,64 @@ public class Connection {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-
 				}
 			}).start();
+		}
+	}
+
+	public void readOobInclude(JSONObject event) {
+		final Connection self = this;
+		final JSONObject _event = event;
+		URL oobIncludeURL = null;
+		try {
+			oobIncludeURL = new URL(self.hostUrl+_event.getString("url"));
+		} catch (MalformedURLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (JSONException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();						
+		}
+		try {
+			URLConnection oobIncludeConn = oobIncludeURL.openConnection();
+			oobIncludeConn.addRequestProperty("Cookie", "session="+self.session);
+			oobIncludeConn.connect();
+			BufferedReader rd = new BufferedReader(new InputStreamReader(
+					oobIncludeConn.getInputStream()));
+			String line;
+			List<JSONObject> list = new ArrayList<JSONObject>();
+			while ((line = rd.readLine()) != null) {
+				line = line.trim();
+				if (line.length() <= 0) {
+					continue;
+				}
+				if (line.equals("[") || line.equals("]")) {
+					continue;
+				}
+				try {
+					JSONObject response = new JSONObject(line);
+					String type = response.getString("type");
+					if (type.equals("makeserver") || type.equals("makebuffer") || type.equals("connecting") ||
+						type.equals("connected") || type.equals("channel_init")) {
+						self.onEvent(response);
+					} else {
+						list.add(response);
+					}
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				for (JSONObject response:list) {
+					self.onEvent(response);
+				}
+			}
+
+			rd.close();
+			connected = false;
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 

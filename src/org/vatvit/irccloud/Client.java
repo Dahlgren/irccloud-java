@@ -35,6 +35,14 @@ public class Client {
 				}
 			}
 		});
+		
+		this.connection.addEventListener("oob_include", new EventListener() {
+			public void onEvent(JSONObject event) {
+				//{"bid":-1,"eid":-1,"type":"oob_include","time":1323264089,"highlight":false,"url":"\/chat\/oob-loader?key=7ae0b85c-21bb-411e-b932-4957f642d226"}
+				connection.readOobInclude(event);
+			}
+		});
+		
 		this.connection.addEventListener("makeserver", new EventListener(){
 			public void onEvent(JSONObject event) {
 				Server server = new Server(connection, event);
