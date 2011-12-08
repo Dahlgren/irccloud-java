@@ -19,6 +19,7 @@ public class Channel {
 	private int topicTime;
 	private int cid;
 	private ArrayList<Message> messages = new ArrayList<Message>();
+	private int maxMessages = 100;
 	
 	public Channel(Connection conn, JSONObject object) {
 		this.connection = conn;
@@ -67,6 +68,9 @@ public class Channel {
 				}
 				
 				Message message = new Message(connection, event);
+				while (messages.size() >= maxMessages) {
+					messages.remove(0);
+				}
 				messages.add(message);
 				newMessage(message);
 				
@@ -159,5 +163,11 @@ public class Channel {
 		this.connection.postData("say", values);
 	}
 	
+	public void setMaxMessages(int maxMessages) {
+		this.maxMessages = maxMessages;
+	}
 	
+	public int getMaxMessages() {
+		return maxMessages;
+	}
 }
