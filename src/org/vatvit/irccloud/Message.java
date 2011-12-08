@@ -1,5 +1,7 @@
 package org.vatvit.irccloud;
 
+import java.util.Date;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -65,6 +67,13 @@ public class Message {
 		this.time = time;
 	}
 
+	public Date getDateTime() {
+		if (time <= 0) {
+			return new Date(0);
+		}
+		return new Date((long)time * 1000);
+	}
+	
 	public int getCid() {
 		return cid;
 	}
