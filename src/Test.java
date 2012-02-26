@@ -1,8 +1,6 @@
 import org.vatvit.irccloud.Channel;
 import org.vatvit.irccloud.Client;
-import org.vatvit.irccloud.Connection;
 import org.vatvit.irccloud.Server;
-import org.vatvit.irccloud.events.EventListener;
 import org.vatvit.irccloud.events.ServerListener;
 import org.vatvit.irccloud.events.ServersListener;
 

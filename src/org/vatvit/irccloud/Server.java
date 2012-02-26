@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import org.json.simple.JSONObject;
 import org.vatvit.irccloud.events.EventListener;
 import org.vatvit.irccloud.events.ServerListener;
-import org.vatvit.irccloud.events.ServersListener;
 
 public class Server {
 	private Connection connection;

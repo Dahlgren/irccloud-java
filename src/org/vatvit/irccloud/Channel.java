@@ -1,11 +1,10 @@
 package org.vatvit.irccloud;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 import org.json.simple.JSONObject;
-import org.vatvit.irccloud.events.EventListener;
 import org.vatvit.irccloud.events.ChannelListener;
+import org.vatvit.irccloud.events.EventListener;
 
 public class Channel {
 	private Connection connection;
