@@ -1,0 +1,5 @@
+.project
+.metadata
+bin/**
+local.properties
+.classpath
