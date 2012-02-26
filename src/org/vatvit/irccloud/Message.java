@@ -1,30 +1,22 @@
 package org.vatvit.irccloud;
 
-import java.util.Date;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.json.simple.JSONObject;
 
 public class Message {
 	private Connection connection;
 	private String from;
 	private String chan;
 	private String msg;
-	private int time;
-	private int cid;
+	private long time;
+	private long cid;
 
 	public Message(Connection conn, JSONObject object) {
 		this.connection = conn;
-		try {
-			this.from = object.getString("from");
-			this.chan = object.getString("chan");
-			this.msg = object.getString("msg");
-			this.time = object.getInt("time");
-			this.cid = object.getInt("cid");
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		this.from = (String)object.get("from");
+		this.chan = (String)object.get("chan");
+		this.msg = (String)object.get("msg");
+		this.time = (Long)object.get("time");
+		this.cid = (Long)object.get("cid");
 	}
 
 	public Connection getConnection() {
@@ -59,26 +51,19 @@ public class Message {
 		this.msg = msg;
 	}
 
-	public int getTime() {
+	public long getTime() {
 		return time;
 	}
 
-	public void setTime(int time) {
+	public void setTime(long time) {
 		this.time = time;
 	}
 
-	public Date getDateTime() {
-		if (time <= 0) {
-			return new Date(0);
-		}
-		return new Date((long)time * 1000);
-	}
-	
-	public int getCid() {
+	public long getCid() {
 		return cid;
 	}
 
-	public void setCid(int cid) {
+	public void setCid(long cid) {
 		this.cid = cid;
 	}
 	

@@ -14,15 +14,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+//import org.json.JSONArray;
+//import org.json.JSONException;
+//import org.json.JSONObject;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.vatvit.irccloud.events.EventListener;
+
 
 public class Connection {
 	private String email;
 	private String password;
 	private boolean connected;
+	private JSONParser parser;
 	private String session;
 	private int reqCount=0;
 	private HashMap<String, ArrayList<EventListener>> eventListeners = new HashMap<String, ArrayList<EventListener>>();
@@ -31,11 +36,12 @@ public class Connection {
 	private String hostUrl = "https://irccloud.com";
 	private String streamUrl = "https://irccloud.com/chat/stream";
 	private String actionUrl = "https://irccloud.com/chat/";
-
+	
 	public Connection(String email, String password) {
 		this.email = email;
 		this.password = password;
 		this.connected = false;
+		this.parser = new JSONParser();
 	}
 
 	public boolean login() {
@@ -73,8 +79,9 @@ public class Connection {
 					loginConn.getInputStream()));
 			String line;
 			while ((line = rd.readLine()) != null) {
-				JSONObject response = new JSONObject(line);
-				String session = response.getString("session");
+				//JSONObject response = new JSONObject(line);
+				JSONObject response = (JSONObject)parser.parse(line);
+				String session = (String)response.get("session");
 				if (session != null) {
 					this.session = session;
 				}
@@ -92,7 +99,7 @@ public class Connection {
 				e1.printStackTrace();
 				return false;
 			}
-		} catch (JSONException e) {
+		} catch (ParseException e) {
 			e.printStackTrace();
 			return false;
 		}
@@ -133,9 +140,9 @@ public class Connection {
 								continue;
 							}
 							try {
-								JSONObject response = new JSONObject(line);
+								JSONObject response = (JSONObject)parser.parse(line);
 								self.onEvent(response);
-							} catch (JSONException e) {
+							} catch (ParseException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
@@ -158,13 +165,10 @@ public class Connection {
 		final JSONObject _event = event;
 		URL oobIncludeURL = null;
 		try {
-			oobIncludeURL = new URL(self.hostUrl+_event.getString("url"));
+			oobIncludeURL = new URL(self.hostUrl+(String)_event.get("url"));
 		} catch (MalformedURLException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		} catch (JSONException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();						
 		}
 		try {
 			URLConnection oobIncludeConn = oobIncludeURL.openConnection();
@@ -182,16 +186,19 @@ public class Connection {
 				if (line.equals("[") || line.equals("]")) {
 					continue;
 				}
+				if (line.charAt(line.length() - 1) == ',') {
+					line = line.substring(0, line.length() - 1);
+				}
 				try {
-					JSONObject response = new JSONObject(line);
-					String type = response.getString("type");
+					JSONObject response = (JSONObject)parser.parse(line);
+					String type = (String)response.get("type");
 					if (type.equals("makeserver") || type.equals("makebuffer") || type.equals("connecting") ||
 						type.equals("connected") || type.equals("channel_init")) {
 						self.onEvent(response);
 					} else {
 						list.add(response);
 					}
-				} catch (JSONException e) {
+				} catch (ParseException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -268,12 +275,7 @@ public class Connection {
 
 	private void onEvent(JSONObject event) {
 		String type = null;
-		try {
-			type = event.getString("type");
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		type = (String)event.get("type");
 		if(type == null) {
 			return;
 		}
