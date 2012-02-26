@@ -1,5 +1,7 @@
 package org.vatvit.irccloud;
 
+import java.util.Date;
+
 import org.json.simple.JSONObject;
 
 public class Message {
@@ -57,6 +59,13 @@ public class Message {
 
 	public void setTime(long time) {
 		this.time = time;
+	}
+	
+	public Date getDateTime() {
+		if (time <= 0) {
+			return new Date(0);
+		}
+		return new Date((long)time * 1000);
 	}
 
 	public long getCid() {
